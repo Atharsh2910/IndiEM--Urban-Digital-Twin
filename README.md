@@ -1,8 +1,8 @@
-# 🌆 Urban Environmental Intelligence Platform – Proof of Concept
+# IndiEM -- Urban Digital Twin – Proof of Concept
 
 ## Overview
 
-This repository contains a **Proof of Concept (PoC)** for an **Integrated Urban Environmental Intelligence Platform** inspired by global initiatives such as Singapore’s **Integrated Environmental Modeller (IEM)** and contextualised for **Indian cities**.
+This repository contains a **Proof of Concept (PoC)** for the **IndiEM Platform** A unified, predictive urban intelligence platform that integrates physics-based environmental simulations, machine learning, and spatial digital twins to enable climate-resilient, evidence-driven urban planning at city and national scales.
 
 The PoC demonstrates how **machine learning, predictive analytics, spatial modelling, and urban digital twin concepts** can be combined to simulate, analyse, and visualise urban environmental impacts—specifically focusing on **heat risk, air pollution, traffic, and development-induced stress**.
 
