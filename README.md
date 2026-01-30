@@ -56,7 +56,7 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
+git clone https://github.com/Atharsh2910/IndiEM--Urban-Digital-Twin.git
 cd <repo-name>
 
 python -m venv venv
