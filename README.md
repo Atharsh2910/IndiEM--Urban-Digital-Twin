@@ -8,6 +8,13 @@ The PoC demonstrates how **machine learning, predictive analytics, spatial model
 
 The system enables **scenario-based planning**, allowing users to compare environmental conditions **before and after a proposed development (5-acre IT park)** and across future time horizons.
 
+## Intended Users
+
+- Urban planners evaluating development proposals
+- Policy teams assessing long-term environmental impact
+- Smart city cells exploring predictive planning tools
+- Researchers studying urban climate interactions
+
 ---
 
 ## Key Features
@@ -124,6 +131,16 @@ and visualisations:
 
 - **Legend**  
   Percentile-based comparative colour scale (Green → Yellow → Orange → Red → Dark Red)
+
+## Screenshots
+
+  <img width="452" height="207" alt="image" src="https://github.com/user-attachments/assets/6a99d4b7-a81b-4893-81fd-c3d03f246f73" />
+
+  <img width="452" height="207" alt="image" src="https://github.com/user-attachments/assets/4fc5fafa-dcc4-4668-9444-b4655358ed64" />
+  
+  <img width="452" height="184" alt="image" src="https://github.com/user-attachments/assets/0a694896-e662-4f08-93d2-0bfb5e37eb70" />
+
+  <img width="452" height="194" alt="image" src="https://github.com/user-attachments/assets/c4f38b42-5ee0-44de-bc4e-a7ad030e25af" />
 
 ## Future Enhancements
 
