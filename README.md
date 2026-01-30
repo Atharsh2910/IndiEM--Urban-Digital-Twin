@@ -39,27 +39,36 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 
 ## Project Structure
 
-├── dashboard/
-│ └── app.py # Streamlit GIS dashboard
-│
-├── data/
-│ ├── raw/
-│ │ └── city_grid_raw.csv
-│ └── processed/
-│ ├── city_with_heat_risk.csv
-│ ├── it_park_impact.csv
-│ └── heat_surface.geojson
-│
-├── models/
-│ └── heat_risk_model.pkl
-│
-├── src/
-│ ├── generate_data.py # Synthetic city data generation
-│ ├── train_models.py # ML model training & evaluation
-│ ├── simulate_it_park.py # IT park impact simulation
-│ ├── add_latlon.py # Spatial coordinate mapping
-│ ├── build_surface.py # Continuous spatial surface creation
-│ └── utils.py # Shared utilities
-│
-├── requirements.txt
-└── README.md
+---
+
+## Technology Stack
+
+- **Programming & Analytics**: Python, NumPy, Pandas  
+- **Machine Learning**: Scikit-learn, Joblib  
+- **Geospatial & GIS**: GeoPandas, Shapely, PyProj, Fiona  
+- **Visualization & Mapping**: Folium, OpenStreetMap  
+- **Web Application**: Streamlit, streamlit-folium  
+- **Data Formats**: CSV, GeoJSON  
+
+---
+
+## Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
+
+python -m venv venv
+source venv/bin/activate  # Linux / macOS
+venv\Scripts\activate     # Windows
+
+pip install -r requirements.txt
+
+python src/generate_data.py
+python src/train_models.py
+python src/simulate_it_park.py
+python src/add_latlon.py
+python src/build_surface.py
+streamlit run dashboard/app.py
+
