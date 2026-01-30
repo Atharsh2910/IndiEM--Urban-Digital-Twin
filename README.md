@@ -66,7 +66,7 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 ├── requirements.txt
 └── README.md
 
----
+
 
 ```
 ## Technology Stack
