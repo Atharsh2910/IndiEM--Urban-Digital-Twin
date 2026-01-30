@@ -67,6 +67,8 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 └── README.md
 
 ---
+
+```
 ## Technology Stack
 
 - **Programming & Analytics**: Python, NumPy, Pandas  
