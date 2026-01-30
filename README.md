@@ -39,9 +39,10 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 
 ## Project Structure
 
+```text
 .
 ├── dashboard/
-│   └── app.py                 
+│   └── app.py
 │
 ├── data/
 │   ├── raw/
@@ -55,19 +56,17 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 │   └── heat_risk_model.pkl
 │
 ├── src/
-│   ├── generate_data.py         
-│   ├── train_models.py          
-│   ├── simulate_it_park.py      
-│   ├── add_latlon.py           
-│   ├── build_surface.py         
-│   └── utils.py                
+│   ├── generate_data.py
+│   ├── train_models.py
+│   ├── simulate_it_park.py
+│   ├── add_latlon.py
+│   ├── build_surface.py
+│   └── utils.py
 │
 ├── requirements.txt
 └── README.md
 
-
 ---
-
 ## Technology Stack
 
 - **Programming & Analytics**: Python, NumPy, Pandas  
