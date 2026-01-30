@@ -40,30 +40,30 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 ## Project Structure
 
 .
--├── dashboard/
--│ └── app.py # Streamlit GIS dashboard
--│
--├── data/
--│ ├── raw/
--│ │ └── city_grid_raw.csv
--│ └── processed/
--│ ├── city_with_heat_risk.csv
--│ ├── it_park_impact.csv
--│ └── heat_surface.geojson
--│
--├── models/
--│ └── heat_risk_model.pkl
--│
--├── src/
--│ ├── generate_data.py # Synthetic city data generation
--│ ├── train_models.py # ML model training & evaluation
--│ ├── simulate_it_park.py # IT park impact simulation
--│ ├── add_latlon.py # Spatial coordinate mapping
--│ ├── build_surface.py # Continuous spatial surface creation
--│ └── utils.py # Shared utilities
--│
--├── requirements.txt
--└── README.md
+├── dashboard/
+│   └── app.py                 
+│
+├── data/
+│   ├── raw/
+│   │   └── city_grid_raw.csv
+│   └── processed/
+│       ├── city_with_heat_risk.csv
+│       ├── it_park_impact.csv
+│       └── heat_surface.geojson
+│
+├── models/
+│   └── heat_risk_model.pkl
+│
+├── src/
+│   ├── generate_data.py         
+│   ├── train_models.py          
+│   ├── simulate_it_park.py      
+│   ├── add_latlon.py           
+│   ├── build_surface.py         
+│   └── utils.py                
+│
+├── requirements.txt
+└── README.md
 
 
 ---
