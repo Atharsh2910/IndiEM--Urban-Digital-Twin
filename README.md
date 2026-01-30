@@ -40,30 +40,31 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 ## Project Structure
 
 .
-├── dashboard/
-│ └── app.py # Streamlit GIS dashboard
-│
-├── data/
-│ ├── raw/
-│ │ └── city_grid_raw.csv
-│ └── processed/
-│ ├── city_with_heat_risk.csv
-│ ├── it_park_impact.csv
-│ └── heat_surface.geojson
-│
-├── models/
-│ └── heat_risk_model.pkl
-│
-├── src/
-│ ├── generate_data.py # Synthetic city data generation
-│ ├── train_models.py # ML model training & evaluation
-│ ├── simulate_it_park.py # IT park impact simulation
-│ ├── add_latlon.py # Spatial coordinate mapping
-│ ├── build_surface.py # Continuous spatial surface creation
-│ └── utils.py # Shared utilities
-│
-├── requirements.txt
-└── README.md
+-├── dashboard/
+-│ └── app.py # Streamlit GIS dashboard
+-│
+-├── data/
+-│ ├── raw/
+-│ │ └── city_grid_raw.csv
+-│ └── processed/
+-│ ├── city_with_heat_risk.csv
+-│ ├── it_park_impact.csv
+-│ └── heat_surface.geojson
+-│
+-├── models/
+-│ └── heat_risk_model.pkl
+-│
+-├── src/
+-│ ├── generate_data.py # Synthetic city data generation
+-│ ├── train_models.py # ML model training & evaluation
+-│ ├── simulate_it_park.py # IT park impact simulation
+-│ ├── add_latlon.py # Spatial coordinate mapping
+-│ ├── build_surface.py # Continuous spatial surface creation
+-│ └── utils.py # Shared utilities
+-│
+-├── requirements.txt
+-└── README.md
+
 
 ---
 
@@ -98,3 +99,37 @@ python src/add_latlon.py
 python src/build_surface.py
 streamlit run dashboard/app.py
 
+## Using the Dashboard
+
+Once the application is launched, the dashboard provides the following controls
+and visualisations:
+
+- **Feature Selector**  
+  Choose between Heat Risk, Traffic, PM2.5, or Temperature layers.
+
+- **Year Slider**  
+  Explore future scenarios from **2025 to 2040**.
+
+- **Scenario Slider**  
+  Toggle between **Before Construction** and **After Construction** conditions.
+
+- **Map View**  
+  OpenStreetMap-based GIS view with a continuous, AQI-style surface.
+
+- **Overlays**
+  - IT park boundary footprint
+  - Policy recommendation zones
+
+- **Legend**  
+  Percentile-based comparative colour scale (Green → Yellow → Orange → Red → Dark Red)
+
+## Future Enhancements
+
+The following enhancements are planned for future iterations of the platform:
+
+- 3D urban digital twin integration for volumetric analysis
+- Flood and monsoon risk modelling using hydrological simulations
+- Real-time IoT sensor ingestion and streaming analytics
+- Physics-based CFD simulations for airflow and pollutant dispersion
+- Multi-city and regional-scale deployment framework
+- Policy impact scoring and automated compliance reporting
