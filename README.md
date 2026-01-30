@@ -99,6 +99,7 @@ python src/simulate_it_park.py
 python src/add_latlon.py
 python src/build_surface.py
 streamlit run dashboard/app.py
+```
 
 ## Using the Dashboard
 
