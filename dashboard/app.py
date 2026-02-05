@@ -197,7 +197,7 @@ else:
             "fillColor": color,
             "color": None,
             "weight": 0,
-            "fillOpacity": 0.05
+            "fillOpacity": 0.15
         }
 
     folium.GeoJson(
