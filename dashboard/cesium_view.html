@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Urban Digital Twin – Cesium</title>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="cesiumContainer"></div>
+
+  <script>
+    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNDY5ZGYyMy1kZjJmLTQzMmQtOWRjNS1mYTVmMmMyNjNiNWEiLCJpZCI6Mzg3MjkxLCJpYXQiOjE3NzAyNzg2Mjd9.IOYh_N-XwhadHMHLB-jAGF4Lu38izxU2jPBFjBl3H_E";
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      terrainProvider: Cesium.Terrain.fromWorldTerrain(),
+      timeline: false,
+      animation: false,
+      baseLayerPicker: true
+    });
+
+    // Load Heat Surface
+    Cesium.GeoJsonDataSource.load("heat_surface.geojson", {
+      clampToGround: true
+    }).then(function (dataSource) {
+      viewer.dataSources.add(dataSource);
+
+      dataSource.entities.values.forEach(entity => {
+        if (entity.polygon) {
+          entity.polygon.extrudedHeight = entity.properties.height * 5;
+          entity.polygon.material = Cesium.Color.RED.withAlpha(0.6);
+        }
+      });
+
+      viewer.zoomTo(dataSource);
+    });
+
+    // Load IT Park Boundary
+    Cesium.GeoJsonDataSource.load("it_park_boundary.geojson").then(function (ds) {
+      viewer.dataSources.add(ds);
+
+      ds.entities.values.forEach(entity => {
+        entity.polygon.extrudedHeight = 120;
+        entity.polygon.material = Cesium.Color.BLACK.withAlpha(0.8);
+      });
+    });
+  </script>
+</body>
+</html>

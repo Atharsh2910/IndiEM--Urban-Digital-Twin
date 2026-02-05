@@ -3,6 +3,8 @@ import geopandas as gpd
 import folium
 from streamlit_folium import st_folium
 import os
+import json
+import pandas as pd
 
 # -------------------------------------------------
 # Page config
@@ -26,13 +28,15 @@ IT_PARK_PATH = os.path.join(ROOT_DIR, "data", "processed", "it_park_impact.csv")
 # -------------------------------------------------
 surface = gpd.read_file(SURFACE_PATH)
 
-import pandas as pd
 it_df = pd.read_csv(IT_PARK_PATH)
 it_park = gpd.GeoDataFrame(
     it_df,
     geometry=gpd.points_from_xy(it_df.lon, it_df.lat),
     crs="EPSG:4326"
 )
+
+# Precompute IT park boundary ONCE
+it_park_boundary = it_park.unary_union.convex_hull
 
 # -------------------------------------------------
 # Sidebar controls
@@ -62,11 +66,17 @@ scenario_slider = st.sidebar.slider(
 
 scenario = "After" if scenario_slider == 1 else "Before"
 
+view_mode = st.sidebar.radio(
+    "View Mode",
+    ["2D Map", "3D Digital Twin"]
+)
+
 # -------------------------------------------------
 # Metric selection
 # -------------------------------------------------
 if feature == "Heat Risk":
-    metric = f"heat_{year}"
+    metric = metric = f"heat_{year}"
+
 elif feature == "Traffic":
     metric = "traffic"
 elif feature == "PM2.5":
@@ -75,151 +85,167 @@ else:
     metric = "temperature"
 
 # -------------------------------------------------
-# Comparative (quantile-based) thresholds
+# Prepare 3D height (Z dimension)
 # -------------------------------------------------
-q20 = surface[metric].quantile(0.20)
-q40 = surface[metric].quantile(0.40)
-q60 = surface[metric].quantile(0.60)
-q80 = surface[metric].quantile(0.80)
+surface_3d = surface.copy()
 
-def style_function(feature):
-    v = feature["properties"][metric]
+min_v = surface_3d[metric].min()
+max_v = surface_3d[metric].max()
 
-    if v <= q20:
-        color = "#2ECC71"   # Green
-    elif v <= q40:
-        color = "#F1C40F"   # Yellow
-    elif v <= q60:
-        color = "#E67E22"   # Orange
-    elif v <= q80:
-        color = "#E74C3C"   # Red
-    else:
-        color = "#7B241C"   # Dark Red
+surface_3d["height"] = (
+    (surface_3d[metric] - min_v) / (max_v - min_v + 1e-6)
+) * 300  # meters
 
-    return {
-        "fillColor": color,
-        "color": None,
-        "weight": 0,
-        "fillOpacity": 0.65
-    }
+CESIUM_DIR = os.path.join(ROOT_DIR, "dashboard", "cesium_data")
+os.makedirs(CESIUM_DIR, exist_ok=True)
 
-# -------------------------------------------------
-# Create base map
-# -------------------------------------------------
-center_lat = surface.geometry.centroid.y.mean()
-center_lon = surface.geometry.centroid.x.mean()
+surface_3d["height"] = surface_3d[metric]
 
-m = folium.Map(
-    location=[center_lat, center_lon],
-    zoom_start=12,
-    tiles="OpenStreetMap"
+surface_3d.to_file(
+    os.path.join(CESIUM_DIR, "heat_surface.geojson"),
+    driver="GeoJSON"
 )
 
-# -------------------------------------------------
-# Add heat surface
-# -------------------------------------------------
-folium.GeoJson(
-    surface,
-    style_function=style_function,
-    tooltip=folium.GeoJsonTooltip(
-        fields=[metric],
-        aliases=[feature]
+# IT park boundary
+it_gdf = gpd.GeoDataFrame(
+    {"name": ["IT Park"]},
+    geometry=[it_park_boundary],
+    crs="EPSG:4326"
+)
+
+it_gdf.to_file(
+    os.path.join(CESIUM_DIR, "it_park_boundary.geojson"),
+    driver="GeoJSON"
+)
+
+if view_mode == "3D Digital Twin":
+    st.subheader("🌍 3D Urban Digital Twin (CesiumJS)")
+
+    cesium_html_path = os.path.join(
+        ROOT_DIR, "dashboard", "cesium_view.html"
     )
-).add_to(m)
+
+    with open(cesium_html_path, "r", encoding="utf-8") as f:
+        cesium_html = f.read()
+
+    st.components.v1.html(
+        cesium_html,
+        height=750,
+        scrolling=False
+    )
+
 
 # -------------------------------------------------
-# IT Park boundary (ONLY after construction)
+# 2D MAP VIEW (FOLIUM)
 # -------------------------------------------------
+else:
+    st.subheader(f"🌆 Spatial Impact Map ({scenario} Construction)")
 
-if scenario == "After":
-    # Create a single polygon boundary around IT park points
-    it_park_boundary = it_park.unary_union.convex_hull
+    center_lat = surface.geometry.centroid.y.mean()
+    center_lon = surface.geometry.centroid.x.mean()
+
+    m = folium.Map(
+        location=[center_lat, center_lon],
+        zoom_start=12,
+        tiles="OpenStreetMap"
+    )
+
+    # Quantile thresholds
+    q20 = surface[metric].quantile(0.20)
+    q40 = surface[metric].quantile(0.40)
+    q60 = surface[metric].quantile(0.60)
+    q80 = surface[metric].quantile(0.80)
+
+    def style_function(feature_json):
+        v = feature_json["properties"][metric]
+
+        if v <= q20:
+            color = "#2ECC71"
+        elif v <= q40:
+            color = "#F1C40F"
+        elif v <= q60:
+            color = "#E67E22"
+        elif v <= q80:
+            color = "#E74C3C"
+        else:
+            color = "#7B241C"
+
+        return {
+            "fillColor": color,
+            "color": None,
+            "weight": 0,
+            "fillOpacity": 0.65
+        }
 
     folium.GeoJson(
-        it_park_boundary,
-        style_function=lambda feature: {
-            "fillColor": "#000000",
-            "color": "#000000",
-            "weight": 10,
-            "fillOpacity": 100
-        },
-        tooltip="Proposed 5-Acre IT Park Boundary"
+        surface,
+        style_function=style_function,
+        tooltip=folium.GeoJsonTooltip(
+            fields=[metric],
+            aliases=[feature]
+        )
     ).add_to(m)
 
-
-# -------------------------------------------------
-# POLICY RECOMMENDATION OVERLAY (AFTER ONLY)
-# -------------------------------------------------
-if scenario == "After":
-    for _, row in it_park.iterrows():
-        folium.Circle(
-            location=[row.geometry.y, row.geometry.x],
-            radius=500,
-            color="green",
-            fill=True,
-            fill_opacity=0.15,
-            popup="Policy: Green buffer & tree plantation"
+    if scenario == "After":
+        folium.GeoJson(
+            it_park_boundary,
+            style_function=lambda _: {
+                "fillColor": "#000000",
+                "color": "#000000",
+                "weight": 4,
+                "fillOpacity": 0.05
+            },
+            tooltip="Proposed 5-Acre IT Park Boundary"
         ).add_to(m)
 
-        folium.Circle(
-            location=[row.geometry.y, row.geometry.x],
-            radius=300,
-            color="blue",
-            fill=True,
-            fill_opacity=0.12,
-            popup="Policy: Traffic demand management"
-        ).add_to(m)
+        for _, row in it_park.iterrows():
+            folium.Circle(
+                location=[row.geometry.y, row.geometry.x],
+                radius=500,
+                color="green",
+                fill=True,
+                fill_opacity=0.15,
+                popup="Policy: Green buffer & tree plantation"
+            ).add_to(m)
+
+            folium.Circle(
+                location=[row.geometry.y, row.geometry.x],
+                radius=300,
+                color="blue",
+                fill=True,
+                fill_opacity=0.12,
+                popup="Policy: Traffic demand management"
+            ).add_to(m)
+
+    legend_html = f"""
+    <div style="
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 280px;
+    background-color: white;
+    color: black;
+    padding: 14px;
+    border-radius: 8px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.4);
+    z-index:9999;
+    font-size:14px;
+    ">
+    <b>{feature} – Comparative Scale</b><br><br>
+    <span style="color:#2ECC71;">■</span> Low (≤20%)<br>
+    <span style="color:#F1C40F;">■</span> Moderate (20–40%)<br>
+    <span style="color:#E67E22;">■</span> Elevated (40–60%)<br>
+    <span style="color:#E74C3C;">■</span> High (60–80%)<br>
+    <span style="color:#7B241C;">■</span> Extreme (>80%)<br>
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
+    st_folium(m, width=1400, height=720)
 
 # -------------------------------------------------
-# LEGEND (FIXED VISIBILITY)
+# Summary & Conclusion
 # -------------------------------------------------
-legend_html = f"""
-<div style="
-position: fixed;
-bottom: 30px;
-left: 30px;
-width: 280px;
-background-color: #ffffff;
-color: #000000;
-padding: 14px;
-border-radius: 8px;
-box-shadow: 3px 3px 10px rgba(0,0,0,0.4);
-z-index:9999;
-font-size:14px;
-">
-<b>{feature} – Comparative Scale</b><br><br>
-<span style="color:#2ECC71;">■</span> Low (≤ 20%)<br>
-<span style="color:#F1C40F;">■</span> Moderate (20–40%)<br>
-<span style="color:#E67E22;">■</span> Elevated (40–60%)<br>
-<span style="color:#E74C3C;">■</span> High (60–80%)<br>
-<span style="color:#7B241C;">■</span> Extreme (> 80%)<br>
-</div>
-"""
-m.get_root().html.add_child(folium.Element(legend_html))
-
-# -------------------------------------------------
-# Render
-# -------------------------------------------------
-st.subheader(f"🌆 Spatial Impact Map ({scenario} Construction)")
-st_folium(m, width=1400, height=720)
-
-# -------------------------------------------------
-# Summary metrics
-# -------------------------------------------------
-st.subheader("📊 Planning Summary")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Feature", feature)
-
-with col2:
-    st.metric("Year", year)
-
-with col3:
-    st.metric("Scenario", scenario)
-
-
 st.subheader("📌 Policy Recommendations")
 
 if scenario == "After":
@@ -233,12 +259,7 @@ if scenario == "After":
 else:
     st.info("Switch to **After Construction** to view policy interventions.")
 
-# -------------------------------------------------
-# Final conclusion
-# -------------------------------------------------
 st.success(
-    "IndiEM - The digital twin for urban modelling revolutinizes" 
-    "urban planning with Data-backed recommendations for"
-    "green infrastructure, ventilation corridors, shading strategies," 
-    "and flood-resilient layouts."
+    "IndiEM – A digital twin–driven urban intelligence platform enabling "
+    "data-backed, predictive, and climate-resilient planning decisions."
 )

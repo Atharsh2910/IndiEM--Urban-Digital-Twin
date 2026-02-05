@@ -1,59 +1,63 @@
 import pandas as pd
-import numpy as np
 import geopandas as gpd
-from shapely.geometry import box
+from shapely.geometry import Polygon
+import os
 
-# ---------------------------------
-# Load city data
-# ---------------------------------
-df = pd.read_csv("data/processed/city_with_heat_risk.csv")
+# -----------------------------
+# Paths
+# -----------------------------
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+INPUT_CSV = os.path.join(ROOT_DIR, "data", "processed", "city_with_heat_risk.csv")
+OUTPUT_GEOJSON = os.path.join(ROOT_DIR, "data", "processed", "heat_surface.geojson")
 
-# ---------------------------------
-# Grid resolution (AQI-like)
-# Smaller = smoother (but heavier)
-# ---------------------------------
-GRID_SIZE = 0.005  # ~500m
+# -----------------------------
+# Load data
+# -----------------------------
+df = pd.read_csv(INPUT_CSV)
 
-lat_min, lat_max = df.lat.min(), df.lat.max()
-lon_min, lon_max = df.lon.min(), df.lon.max()
+# -----------------------------
+# Year projections (synthetic)
+# -----------------------------
+BASE_YEAR = 2025
+YEARS = [2025, 2030, 2035, 2040]
 
-# ---------------------------------
-# Create grid cells
-# ---------------------------------
-cells = []
-for lat in np.arange(lat_min, lat_max, GRID_SIZE):
-    for lon in np.arange(lon_min, lon_max, GRID_SIZE):
-        cells.append(box(lon, lat, lon+GRID_SIZE, lat+GRID_SIZE))
+for year in YEARS:
+    growth_factor = 1 + (year - BASE_YEAR) * 0.03
+    df[f"heat_{year}"] = df["heat_risk_index"] * growth_factor
 
-grid = gpd.GeoDataFrame(geometry=cells, crs="EPSG:4326")
+# -----------------------------
+# Grid size (degrees)
+# -----------------------------
+GRID_SIZE = 0.02  # ~2 km
 
-# ---------------------------------
-# Inverse Distance Weighting (IDW)
-# ---------------------------------
-def idw(x, y, values, xi, yi, power=2):
-    dist = np.sqrt((x-xi)**2 + (y-yi)**2)
-    dist[dist == 0] = 1e-6
-    weights = 1 / dist**power
-    return np.sum(weights * values) / np.sum(weights)
+polygons = []
 
-# ---------------------------------
-# Compute values for multiple years
-# ---------------------------------
-years = [2025, 2030, 2035]
+for _, row in df.iterrows():
+    lat = row["lat"]
+    lon = row["lon"]
 
-for year in years:
-    factor = 1 + 0.02 * (year - 2025) / 5  # gradual increase
-    grid[f"heat_{year}"] = grid.centroid.apply(
-        lambda p: idw(
-            df.lon.values,
-            df.lat.values,
-            df.predicted_heat_risk.values * factor,
-            p.x, p.y
-        )
-    )
+    polygon = Polygon([
+        (lon - GRID_SIZE / 2, lat - GRID_SIZE / 2),
+        (lon + GRID_SIZE / 2, lat - GRID_SIZE / 2),
+        (lon + GRID_SIZE / 2, lat + GRID_SIZE / 2),
+        (lon - GRID_SIZE / 2, lat + GRID_SIZE / 2)
+    ])
 
-# ---------------------------------
+    polygons.append(polygon)
+
+# -----------------------------
+# Create GeoDataFrame
+# -----------------------------
+gdf = gpd.GeoDataFrame(
+    df,
+    geometry=polygons,
+    crs="EPSG:4326"
+)
+
+# -----------------------------
 # Save GeoJSON
-# ---------------------------------
-grid.to_file("data/processed/heat_surface.geojson", driver="GeoJSON")
-print("Continuous heat surface generated")
+# -----------------------------
+os.makedirs(os.path.dirname(OUTPUT_GEOJSON), exist_ok=True)
+gdf.to_file(OUTPUT_GEOJSON, driver="GeoJSON")
+
+print("✅ heat_surface.geojson created with year-wise attributes")
