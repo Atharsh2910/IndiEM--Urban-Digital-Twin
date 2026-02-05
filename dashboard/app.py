@@ -5,6 +5,7 @@ from streamlit_folium import st_folium
 import os
 import json
 import pandas as pd
+import requests
 
 # -------------------------------------------------
 # Page config
@@ -17,26 +18,11 @@ st.set_page_config(
 st.title("🗺️ Chennai City – Urban Environmental Digital Twin")
 
 # -------------------------------------------------
-# Paths
+# Paths & Config
 # -------------------------------------------------
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-SURFACE_PATH = os.path.join(ROOT_DIR, "data", "processed", "heat_surface.geojson")
+API_URL = "http://localhost:5000/api/predictions"
 IT_PARK_PATH = os.path.join(ROOT_DIR, "data", "processed", "it_park_impact.csv")
-
-# -------------------------------------------------
-# Load data
-# -------------------------------------------------
-surface = gpd.read_file(SURFACE_PATH)
-
-it_df = pd.read_csv(IT_PARK_PATH)
-it_park = gpd.GeoDataFrame(
-    it_df,
-    geometry=gpd.points_from_xy(it_df.lon, it_df.lat),
-    crs="EPSG:4326"
-)
-
-# Precompute IT park boundary ONCE
-it_park_boundary = it_park.unary_union.convex_hull
 
 # -------------------------------------------------
 # Sidebar controls
@@ -72,11 +58,46 @@ view_mode = st.sidebar.radio(
 )
 
 # -------------------------------------------------
+# Load data from API
+# -------------------------------------------------
+@st.cache_data(ttl=60) # Cache for 60 seconds to avoid spamming the API on every interaction that doesn't change params
+def fetch_data(year, scenario):
+    try:
+        response = requests.get(API_URL, params={"year": year, "scenario": scenario})
+        if response.status_code == 200:
+            return gpd.read_file(response.text, driver="GeoJSON")
+        else:
+            st.error(f"Error fetching data: {response.status_code} - {response.text}")
+            return None
+    except requests.exceptions.ConnectionError:
+        st.error("⚠️ Backend not reachable. Please run `python backend/app.py`.")
+        return None
+
+surface = fetch_data(year, scenario)
+
+if surface is None:
+    st.stop()
+
+# -------------------------------------------------
+# Load IT Park Data (Static for boundary)
+# -------------------------------------------------
+# We still load this for the boundary visualization, though we could/should arguably extract this from the API too 
+# if we wanted to be 100% clean, but for now we keep the hybrid approach to minimize regression risk on the overlay.
+it_df = pd.read_csv(IT_PARK_PATH)
+it_park = gpd.GeoDataFrame(
+    it_df,
+    geometry=gpd.points_from_xy(it_df.lon, it_df.lat),
+    crs="EPSG:4326"
+)
+it_park_boundary = it_park.unary_union.convex_hull
+
+# -------------------------------------------------
 # Metric selection
 # -------------------------------------------------
+# API returns current state in standard columns, so we don't need "heat_2030" style columns anymore.
+# The API returns 'heat_risk_index', 'traffic', 'pm25', 'temperature' adjusted for the year.
 if feature == "Heat Risk":
-    metric = metric = f"heat_{year}"
-
+    metric = "heat_risk_index"
 elif feature == "Traffic":
     metric = "traffic"
 elif feature == "PM2.5":
@@ -99,8 +120,9 @@ surface_3d["height"] = (
 CESIUM_DIR = os.path.join(ROOT_DIR, "dashboard", "cesium_data")
 os.makedirs(CESIUM_DIR, exist_ok=True)
 
+# For Cesium, we need to save the file locally as the HTML file reads it relative
+# We will overwrite this file based on current selection
 surface_3d["height"] = surface_3d[metric]
-
 surface_3d.to_file(
     os.path.join(CESIUM_DIR, "heat_surface.geojson"),
     driver="GeoJSON"
@@ -119,7 +141,8 @@ it_gdf.to_file(
 )
 
 if view_mode == "3D Digital Twin":
-    st.subheader("🌍 3D Urban Digital Twin (CesiumJS)")
+    st.subheader(f"🌍 3D Urban Digital Twin (Year: {year} | {scenario})")
+    st.info("The 3D view consumes the generated GeoJSON. Refresh browser if Cesium doesn't update immediately.")
 
     cesium_html_path = os.path.join(
         ROOT_DIR, "dashboard", "cesium_view.html"
@@ -139,7 +162,7 @@ if view_mode == "3D Digital Twin":
 # 2D MAP VIEW (FOLIUM)
 # -------------------------------------------------
 else:
-    st.subheader(f"🌆 Spatial Impact Map ({scenario} Construction)")
+    st.subheader(f"🌆 Spatial Impact Map ({year} | {scenario})")
 
     center_lat = surface.geometry.centroid.y.mean()
     center_lon = surface.geometry.centroid.x.mean()
@@ -174,7 +197,7 @@ else:
             "fillColor": color,
             "color": None,
             "weight": 0,
-            "fillOpacity": 0.65
+            "fillOpacity": 0.05
         }
 
     folium.GeoJson(
@@ -193,7 +216,7 @@ else:
                 "fillColor": "#000000",
                 "color": "#000000",
                 "weight": 4,
-                "fillOpacity": 0.05
+                "fillOpacity": 0.80
             },
             tooltip="Proposed 5-Acre IT Park Boundary"
         ).add_to(m)
@@ -204,7 +227,7 @@ else:
                 radius=500,
                 color="green",
                 fill=True,
-                fill_opacity=0.15,
+                fill_opacity=0.50,
                 popup="Policy: Green buffer & tree plantation"
             ).add_to(m)
 
@@ -213,7 +236,7 @@ else:
                 radius=300,
                 color="blue",
                 fill=True,
-                fill_opacity=0.12,
+                fill_opacity=0.50,
                 popup="Policy: Traffic demand management"
             ).add_to(m)
 
@@ -244,20 +267,54 @@ else:
     st_folium(m, width=1400, height=720)
 
 # -------------------------------------------------
-# Summary & Conclusion
+# AI Impact Analysis & Suggestions
 # -------------------------------------------------
-st.subheader("📌 Policy Recommendations")
+st.subheader("🤖 AI-Driven Impact Analysis & Policy Recommendations")
+
+ANALYSIS_API_URL = "http://localhost:5000/api/impact-analysis"
 
 if scenario == "After":
-    st.markdown("""
-    **Recommended Interventions:**
-    - 🌳 Establish green buffers around the IT park
-    - 🚦 Implement traffic demand management
-    - 🏢 Encourage reflective roofing & passive cooling
-    - 🌬️ Improve ventilation corridors
-    """)
+    # Fetch AI Analysis
+    try:
+        res = requests.get(ANALYSIS_API_URL, params={"year": year})
+        if res.status_code == 200:
+            analysis = res.json()
+            
+            # --- 1. Display Delta Metrics ---
+            metrics = analysis["delta_metrics"]
+            
+            if metrics:
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Temp Rise (IT Park)", f"+{metrics['temperature_rise']} °C", delta_color="inverse")
+                c2.metric("Traffic Surge", f"+{metrics['traffic_increase']} vehicles", delta_color="inverse")
+                c3.metric("PM2.5 Worsening", f"+{metrics['pm25_worsening']} µg/m³", delta_color="inverse")
+                c4.metric("Green Cover Loss", f"-{metrics['green_cover_loss']} %", delta_color="inverse")
+            
+            st.divider()
+            
+            # --- 2. Display Severity & Suggestions ---
+            severity = analysis["severity"]
+            
+            if "High Impact" in severity:
+                st.error(f"**Impact Level: {severity}**")
+            elif "Moderate" in severity:
+                st.warning(f"**Impact Level: {severity}**")
+            else:
+                st.info(f"**Impact Level: {severity}**")
+            
+            st.markdown("### 📋 Generated Mitigation Strategies")
+            
+            for rec in analysis["recommendations"]:
+                st.info(f"🔹 {rec}")
+                
+        else:
+            st.error(f"Failed to fetch analysis: {res.text}")
+            
+    except Exception as e:
+        st.error(f"Error connecting to AI engine: {e}")
+
 else:
-    st.info("Switch to **After Construction** to view policy interventions.")
+    st.info("Switch to **After Construction** to view the AI-generated impact analysis.")
 
 st.success(
     "IndiEM – A digital twin–driven urban intelligence platform enabling "

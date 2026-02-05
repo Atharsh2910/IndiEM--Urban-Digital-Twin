@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndiEM | Urban Digital Twin</title>
+
+    <!-- CSS Dependencies -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <style>
+        /* Fallback if css file doesn't load immediately */
+        body {
+            margin: 0;
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Controls -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🌍 IndiEM</h2>
+            <p>Urban Intelligence Platform</p>
+        </div>
+
+        <div class="control-group">
+            <label><i class="fas fa-layer-group"></i> Feature Layer</label>
+            <select id="featureSelect">
+                <option value="heat_risk_index">Heat Risk</option>
+                <option value="traffic">Traffic Density</option>
+                <option value="pm25">PM2.5 (Air Quality)</option>
+                <option value="temperature">Surface Temperature</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label><i class="fas fa-calendar-alt"></i> Year: <span id="yearDisplay">2025</span></label>
+            <input type="range" id="yearSlider" min="2025" max="2040" step="5" value="2025">
+            <div class="slider-labels">
+                <span>2025</span>
+                <span>2030</span>
+                <span>2035</span>
+                <span>2040</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label><i class="fas fa-hammer"></i> Scenario</label>
+            <div class="toggle-container">
+                <span class="toggle-label">Before</span>
+                <label class="switch">
+                    <input type="checkbox" id="scenarioToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label">After</span>
+            </div>
+            <p class="small-text">Construction of 5-Acre IT Park</p>
+        </div>
+
+        <div class="status-panel">
+            <h4>System Status</h4>
+            <div id="loadingIndicator" class="loading hidden"><i class="fas fa-spinner fa-spin"></i> Updating Model...
+            </div>
+            <div id="statusMessage">Ready</div>
+        </div>
+    </div>
+
+    <!-- Main Map Area -->
+    <div id="map"></div>
+
+    <!-- Legend Overlay -->
+    <div class="legend" id="legend">
+        <h4>Legend</h4>
+        <div id="legendContent"></div>
+    </div>
+
+    <!-- AI Impact Analysis Panel (Hidden by default) -->
+    <div class="ai-panel hidden" id="aiPanel">
+        <div class="ai-header">
+            <h3> AI Impact Analysis</h3>
+            <button id="closeAiPanel" class="icon-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="ai-content">
+            <div id="aiMetrics" class="metrics-grid">
+                <!-- Metrics injected here -->
+            </div>
+            <div class="ai-divider"></div>
+            <div id="aiSeverity" class="severity-badge">Analyzing...</div>
+            <div id="aiRecommendations" class="recommendations-list">
+                <!-- Recommendations injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
