@@ -165,14 +165,14 @@ and visualisations:
   Percentile-based comparative colour scale (Green → Yellow → Orange → Red → Dark Red)
 
 ## Screenshots
-
+---
 <img width="1383" height="834" alt="image" src="https://github.com/user-attachments/assets/2d833fa9-c354-4b59-944d-1c8d3e86c806" />
 <img width="1567" height="809" alt="image" src="https://github.com/user-attachments/assets/a46a9522-d8b1-480f-8b05-54e54fba7db4" />
 <img width="437" height="800" alt="image" src="https://github.com/user-attachments/assets/3398f9b5-1bb6-4c4d-bbcd-3d2bd2feda39" />
 <img width="1859" height="800" alt="image" src="https://github.com/user-attachments/assets/bd3788ce-efbe-47e4-ae5b-0829b9bc0b87" />
 <img width="1522" height="780" alt="image" src="https://github.com/user-attachments/assets/bcaead5b-36d4-4022-8e73-d076382fa536" />
 <img width="1863" height="767" alt="image" src="https://github.com/user-attachments/assets/b5202f3d-7523-4543-b1e2-c70891eeecc0" />
-
+---
 ## Future Enhancements
 
 The following enhancements are planned for future iterations of the platform:
