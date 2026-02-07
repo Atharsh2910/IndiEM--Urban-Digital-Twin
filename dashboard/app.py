@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🗺️ Chennai City – Urban Environmental Digital Twin")
+st.title("Chennai City – Urban Environmental Digital Twin")
 
 # -------------------------------------------------
 # Paths & Config
@@ -70,7 +70,7 @@ def fetch_data(year, scenario):
             st.error(f"Error fetching data: {response.status_code} - {response.text}")
             return None
     except requests.exceptions.ConnectionError:
-        st.error("⚠️ Backend not reachable. Please run `python backend/app.py`.")
+        st.error("Backend not reachable. Please run `python backend/app.py`.")
         return None
 
 surface = fetch_data(year, scenario)
@@ -162,7 +162,7 @@ if view_mode == "3D Digital Twin":
 # 2D MAP VIEW (FOLIUM)
 # -------------------------------------------------
 else:
-    st.subheader(f"🌆 Spatial Impact Map ({year} | {scenario})")
+    st.subheader(f"Spatial Impact Map ({year} | {scenario})")
 
     center_lat = surface.geometry.centroid.y.mean()
     center_lon = surface.geometry.centroid.x.mean()
@@ -302,7 +302,7 @@ if scenario == "After":
             else:
                 st.info(f"**Impact Level: {severity}**")
             
-            st.markdown("### 📋 Generated Mitigation Strategies")
+            st.markdown("### Generated Mitigation Strategies")
             
             for rec in analysis["recommendations"]:
                 st.info(f"🔹 {rec}")

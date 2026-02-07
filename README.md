@@ -48,33 +48,33 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 
 ```text
 .
-├── dashboard/
-│   └── app.py
+├── backend/                # Flask Backend & HTML App
+│   ├── app.py              # Backend Service
+│   ├── services.py         # Business Logic & Simulation
+│   ├── templates/          # HTML Templates (index.html)
+│   └── static/             # JS/CSS Assets
 │
-├── data/
-│   ├── raw/
-│   │   └── city_grid_raw.csv
-│   └── processed/
-│       ├── city_with_heat_risk.csv
-│       ├── it_park_impact.csv
-│       └── heat_surface.geojson
+├── dashboard/              # Streamlit Dashboard (Urban Planner View)
+│   ├── app.py              # Dashboard Application
+│   ├── cesium_view.html    # 3D Digital Twin Viewer
+│   └── cesium_data/        # 3D Data Assets
 │
-├── models/
+├── data/                   # Data Storage
+│   ├── raw/                # Original Inputs
+│   └── processed/          # Simulated Outputs
+│
+├── models/                 # ML Models
 │   └── heat_risk_model.pkl
 │
-├── src/
-│   ├── generate_data.py
-│   ├── train_models.py
-│   ├── simulate_it_park.py
-│   ├── add_latlon.py
-│   ├── build_surface.py
-│   └── utils.py
+├── src/                    # Utility Scripts
+│   ├── generate_data.py    # Synthetic Data Generator
+│   ├── train_models.py     # Model Training
+│   ├── simulate_it_park.py # Scenario Simulation
+│   ├── add_latlon.py       # Geocoding
+│   └── build_surface.py    # Surface Generation
 │
-├── requirements.txt
+├── requirements.txt        # Dependencies
 └── README.md
-
-
-
 ```
 ## Technology Stack
 
@@ -92,20 +92,52 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Atharsh2910/IndiEM--Urban-Digital-Twin.git
-cd <repo-name>
+cd IndiEM--Urban-Digital-Twin
+```
 
-python -m venv venv
-source venv/bin/activate  # Linux / macOS
-venv\Scripts\activate     # Windows
+### 2. Environment Setup
 
+**Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
+```
 
+**macOS / Linux:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 3. Initialize Data & Models
+```bash
 python src/generate_data.py
 python src/train_models.py
 python src/simulate_it_park.py
 python src/add_latlon.py
 python src/build_surface.py
+```
+
+### 4. Run the Application
+Open **two separate terminals** to run both components simultaneously.
+
+**Terminal 1: Backend Server (HTMl App & API)**
+```bash
+python backend/app.py
+```
+*Port 5000 is used for the API and HTML app.*
+
+**Terminal 2: Streamlit Dashboard**
+```bash
 streamlit run dashboard/app.py
+```
+*Port 8501 is used for the Dashboard.*
+
+### 5. Access the Platform
+- **HTML App:** http://localhost:5000
+- **Planner Dashboard:** http://localhost:8501
 ```
 
 ## Using the Dashboard

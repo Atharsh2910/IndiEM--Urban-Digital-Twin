@@ -167,7 +167,7 @@ function getFeatureStyle(feature, q) {
         fillColor: color,
         weight: 0,
         color: null,
-        fillOpacity: 0.1 // Low opacity as requested
+        fillOpacity: 0.1
     };
 }
 
@@ -183,7 +183,7 @@ function onEachFeature(feature, layer) {
 async function fetchAIAnalysis() {
     /* Same analysis logic */
     els.aiPanel.classList.remove('hidden');
-    els.aiSeverity.innerText = "Consulting Gemini AI...";
+    els.aiSeverity.innerText = "AI suggestions based on predictive analysis...";
     els.aiMetrics.innerHTML = ""; els.aiRecommendations.innerHTML = "<div>Loading...</div>";
     try {
         const res = await fetch(`/api/impact-analysis?year=${state.year}`);
