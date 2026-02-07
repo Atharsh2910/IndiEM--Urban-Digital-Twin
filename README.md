@@ -174,10 +174,10 @@ and visualisations:
 <img width="1863" height="767" alt="image" src="https://github.com/user-attachments/assets/b5202f3d-7523-4543-b1e2-c70891eeecc0" />
 ---
 
----
-```
-##Deployed Link
-[IndiEM: ](https://indiem-urban-digital-twin.onrender.com)
+
+**##Deployed Link**
+
+-[IndiEM: ](https://indiem-urban-digital-twin.onrender.com)
 
 ## Future Enhancements
 
