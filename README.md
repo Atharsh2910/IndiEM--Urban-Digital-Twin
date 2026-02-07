@@ -139,7 +139,7 @@ streamlit run dashboard/app.py
 - **HTML App:** http://localhost:5000
 - **Planner Dashboard:** http://localhost:8501
 ```
-
+```
 ## Using the Dashboard
 
 Once the application is launched, the dashboard provides the following controls
