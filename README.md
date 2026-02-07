@@ -173,6 +173,11 @@ and visualisations:
 <img width="1522" height="780" alt="image" src="https://github.com/user-attachments/assets/bcaead5b-36d4-4022-8e73-d076382fa536" />
 <img width="1863" height="767" alt="image" src="https://github.com/user-attachments/assets/b5202f3d-7523-4543-b1e2-c70891eeecc0" />
 ---
+
+
+##Deployed Link
+[IndiEM: ](https://indiem-urban-digital-twin.onrender.com)
+
 ## Future Enhancements
 
 The following enhancements are planned for future iterations of the platform:
