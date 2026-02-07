@@ -177,7 +177,7 @@ and visualisations:
 
 **##Deployed Link**
 
--[IndiEM: ](https://indiem-urban-digital-twin.onrender.com)
+[IndiEM](https://indiem-urban-digital-twin.onrender.com)
 
 ## Future Enhancements
 
