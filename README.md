@@ -189,3 +189,7 @@ The following enhancements are planned for future iterations of the platform:
 - Physics-based CFD simulations for airflow and pollutant dispersion
 - Multi-city and regional-scale deployment framework
 - Policy impact scoring and automated compliance reporting
+
+Copyright 2026 Atharsh2910
+Permission is granted to use, modify, and contribute to this software
+only to individuals added as collaborator.
