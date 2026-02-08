@@ -191,5 +191,5 @@ The following enhancements are planned for future iterations of the platform:
 - Policy impact scoring and automated compliance reporting
 
 **Copyright 2026 Atharsh2910**
-Permission is granted to use, modify, and contribute to this software
+ - Permission is granted to use, modify, and contribute to this software
 only to individuals added as collaborator.
