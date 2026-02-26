@@ -48,32 +48,32 @@ The system enables **scenario-based planning**, allowing users to compare enviro
 
 ```text
 .
-├── backend/                # Flask Backend & HTML App
-│   ├── app.py              # Backend Service
-│   ├── services.py         # Business Logic & Simulation
-│   ├── templates/          # HTML Templates (index.html)
-│   └── static/             # JS/CSS Assets
+├── backend/                
+│   ├── app.py              
+│   ├── services.py         
+│   ├── templates/          
+│   └── static/             
 │
-├── dashboard/              # Streamlit Dashboard (Urban Planner View)
-│   ├── app.py              # Dashboard Application
-│   ├── cesium_view.html    # 3D Digital Twin Viewer
-│   └── cesium_data/        # 3D Data Assets
+├── dashboard/              
+│   ├── app.py              
+│   ├── cesium_view.html    
+│   └── cesium_data/        
 │
-├── data/                   # Data Storage
-│   ├── raw/                # Original Inputs
-│   └── processed/          # Simulated Outputs
+├── data/                   
+│   ├── raw/                
+│   └── processed/          
 │
-├── models/                 # ML Models
+├── models/                 
 │   └── heat_risk_model.pkl
 │
-├── src/                    # Utility Scripts
-│   ├── generate_data.py    # Synthetic Data Generator
-│   ├── train_models.py     # Model Training
-│   ├── simulate_it_park.py # Scenario Simulation
-│   ├── add_latlon.py       # Geocoding
-│   └── build_surface.py    # Surface Generation
+├── src/                    
+│   ├── generate_data.py    
+│   ├── train_models.py     
+│   ├── simulate_it_park.py 
+│   ├── add_latlon.py       
+│   └── build_surface.py    
 │
-├── requirements.txt        # Dependencies
+├── requirements.txt        
 └── README.md
 ```
 ## Technology Stack
